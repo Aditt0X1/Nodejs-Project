@@ -1,12 +1,13 @@
 const express = require('express');
 const morgan = require('morgan');
 const mongoose = require('mongoose');
+const Blog = require('./models/blog');
 
 //express app
 const app = express();
 
 //connect to MongoDB & listen for requests
-const dbURI = 'mongodb+srv://xxxxxxxxxxxx@simnode.j5dp4f5.mongodb.net/SimNode?retryWrites=true&w=majority';
+const dbURI = 'mongodb+srv://aditto:test12345@simnode.j5dp4f5.mongodb.net/Simnode?retryWrites=true&w=majority';
 mongoose.connect(dbURI)
     .then((result => app.listen(3000)));
 
@@ -21,22 +22,25 @@ app.use(express.static('public'));
 app.use(morgan('dev'));
 
 
+//routees
 app.get('/', (req, res) => {
-
-    const blogs = [
-        {title:"How to Create Friends", snippet:'Lorem ipsum dolor sit amet consectetur'},
-        {title:"Why Hacking is really fun!", snippet:'Lorem ipsum dolor sit amet consectetur'},
-        {title:"I am on some dope Sh*t!", snippet:'Lorem ipsum dolor sit amet consectetur'},
-    ];
-
-    //res.send('<p>Hello World!</p>');
-    //res.sendFile('./views/index.html', {root: __dirname});
-    res.render('index', {title: 'Home', blogs });
+ res.redirect('/blogs');
 });
 
 app.get('/about', (req, res) => {
     res.render('about', {title: 'About'});
 });
+
+//blog routes
+app.get('/blogs', (req, res) => {
+    Blog.find().sort({createdAt: -1})
+     .then((result) => {
+        res.render('index', {title: 'All Blogs', blogs: result});
+     })
+     .catch((err) => {
+        console.log(err);
+     })
+})
 
 app.get('/blogs/create', (req, res) => {
     res.render('create', {title: 'Create a new blog'});
